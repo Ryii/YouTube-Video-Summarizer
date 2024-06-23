@@ -1,54 +1,73 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState } from 'react';
+import SearchBar from './components/SearchBar';
+import VideoDetail from './components/VideoDetail';
 import './App.css'
-import axios from "axios"
+import axios, { AxiosResponse } from "axios"
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [array, setArray] = useState([]);
+const extractVideoId = (url: string): string | null => {
+  const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.*[?&]v=)?([^&\n?#]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+};
 
-  const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:8080/api/users");
-    // console.log(response.data.users);
-    setArray(response.data.users);
+const App = () => {
+  const [videoId, setVideoId] = useState<string | null>(null);
+  // const [array, setArray] = useState([]);
+  const [link, setLink] = useState("");
+
+  // const fetchAPI = async () => {
+  //   const response = await axios.get("http://localhost:8080/api/users");
+  //   // console.log(response.data.users);
+  //   setArray(response.data.users);
+  // };
+
+  const handleUrlVidSearch = (url: string) => {
+    // setVideoMeta(() => ({
+    //   src: null,
+    //   mimeType: null,
+    //   isUploading: true,
+    // }));
+
+    axios
+      .get("/api/load_video", {
+        params: {
+          url: url,
+        },
+        baseURL: import.meta.env.VITE_API_ENDPOINT,
+      })
+      .then((response: AxiosResponse) => {
+        console.log(response);
+        setLink(response.data); 
+      })
+      .catch((e: any) => {
+        console.log(e);
+      });
   };
 
-  useEffect(() => {
-    fetchAPI();
-  }, []);
+  // useEffect(() => {
+  //   fetchAPI();
+  // }, []);
+
+  const onSearch = (url: string) => {
+    const id = extractVideoId(url);
+    setVideoId(id);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div>
+      <div className="ui container">
+        <SearchBar onSearch={onSearch} />
+        {videoId && <VideoDetail videoId={videoId} />}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          {
-            array.map((user, index) => (
-              <div key={index}>
-                <span>{user}</span>
-                <br></br>
-              </div>
-            ))
-          }
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <button onClick={()=>handleUrlVidSearch('https://www.youtube.com/watch?v=QUT1VHiLmmI')}>
+        Click to get link
+      </button>
+      <p>{link}</p>
+    </div>
+    
+    
+  );
+};
 
-export default App
+export default App;
+
