@@ -1,11 +1,12 @@
+import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
+import './App.css';
 import SearchBar from './components/SearchBar';
 import VideoDetail from './components/VideoDetail';
-import './App.css'
-import axios, { AxiosResponse } from "axios"
 
 const extractVideoId = (url: string): string | null => {
-  const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.*[?&]v=)?([^&\n?#]+)/;
+  const regex =
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.*[?&]v=)?([^&\n?#]+)/;
   const match = url.match(regex);
   return match ? match[1] : null;
 };
@@ -13,7 +14,7 @@ const extractVideoId = (url: string): string | null => {
 const App = () => {
   const [videoId, setVideoId] = useState<string | null>(null);
   // const [array, setArray] = useState([]);
-  const [link, setLink] = useState("");
+  const [link, setLink] = useState('');
 
   // const fetchAPI = async () => {
   //   const response = await axios.get("http://localhost:8080/api/users");
@@ -29,7 +30,7 @@ const App = () => {
     // }));
 
     axios
-      .get("/api/load_video", {
+      .get('/api/load_video', {
         params: {
           url: url,
         },
@@ -37,9 +38,9 @@ const App = () => {
       })
       .then((response: AxiosResponse) => {
         console.log(response);
-        setLink(response.data); 
+        setLink(response.data);
       })
-      .catch((e: any) => {
+      .catch((e: Error) => {
         console.log(e);
       });
   };
@@ -55,19 +56,20 @@ const App = () => {
 
   return (
     <div>
-      <div className="ui container">
+      <div className='ui container'>
         <SearchBar onSearch={onSearch} />
         {videoId && <VideoDetail videoId={videoId} />}
       </div>
-      <button onClick={()=>handleUrlVidSearch('https://www.youtube.com/watch?v=QUT1VHiLmmI')}>
+      <button
+        onClick={() =>
+          handleUrlVidSearch('https://www.youtube.com/watch?v=QUT1VHiLmmI')
+        }
+      >
         Click to get link
       </button>
       <p>{link}</p>
     </div>
-    
-    
   );
 };
 
 export default App;
-
