@@ -4,10 +4,10 @@ import shutil
 
 # from google.cloud import speech
 # from google.cloud import speech_v2
+from google.cloud import storage
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
-from pytube import YouTube        
-
+from pytube import YouTube
 
 FILE_PATH = "yt_audio.mp3"
 
@@ -21,13 +21,34 @@ def youtube_to_audio(url):
     shutil.move(os.path.join(temp_output_path, file), ".")
     os.rename((file), FILE_PATH)
     shutil.rmtree(temp_output_path)
-    # TODO: save to Cloud storage instead 
 
-    return url
+    return 0
+
+def upload_youtube_audio_to_gcs_uri(youtube_url, bucket_name, blob_name):
+    # Read YouTube url
+    temp_output_path = "temp_output_path"
+    yt = YouTube(youtube_url)
+    audio = yt.streams.filter(only_audio=True)
+    audio[0].download(output_path=temp_output_path)
+
+    # (TODO) Upload to GCS 
+    # Options: upload from memory, upload from file 
+
+    # file = os.listdir(temp_output_path)[0]
+    # shutil.move(os.path.join(temp_output_path, file), ".")
+    # os.rename((file), FILE_PATH)
+    # shutil.rmtree(temp_output_path)
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    blob.upload_from_string(audio) # test this  
+    # blob.make_public()
+
+    return blob.public_url
 
 def audio_to_text(project_id, gcs_uri):
-    print("1")
-    client = SpeechClient()
+    speech_client = SpeechClient()
     
     print("2")
     config = cloud_speech.RecognitionConfig(
@@ -51,7 +72,7 @@ def audio_to_text(project_id, gcs_uri):
     print("4")
 
     # Transcribe audio into text
-    operation = client.batch_recognize(request=request)
+    operation = speech_client.batch_recognize(request=request)
 
     print("Waiting for operation to complete...")
     response = operation.result(timeout=180)
@@ -75,3 +96,23 @@ def audio_to_text(project_id, gcs_uri):
 
 
     # return transcript
+
+def delete_audio_from_gcs_uri(gcs_uri):
+    # TODO
+    return 0
+
+def summarize_text(transcript): 
+    # TODO: summarize with Cohere
+    print('transcript', transcript)
+    return ''
+
+def summarize_video(youtube_url):
+    try: 
+        # TODO: check if url is already uploaded by reading bucket, only fetch if needed 
+        gcs_uri = upload_youtube_audio_to_gcs_uri(youtube_url)
+        transcript = audio_to_text(gcs_uri)
+        summary = summarize_text(transcript)
+        return summary
+    except Exception as e: 
+        print(e)
+        raise e

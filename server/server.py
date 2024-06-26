@@ -1,12 +1,11 @@
 import os
+
 import cohere
+from audio import audio_to_text, summarize_youtube_video, youtube_to_audio
+from cloud_storage import delete_blob, upload_blob
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
-
-from dotenv import load_dotenv
-from audio import youtube_to_audio, audio_to_text
-from cloud_storage import upload_blob, delete_blob
 
 load_dotenv()
 
@@ -30,6 +29,11 @@ def users():
 @app.get("/api/load_video")
 def load_video():
     try:
+        # Original
+        # youtube_url = request.args.get('url')
+        # youtube_to_audio(youtube_url)
+        # return youtube_url
+    
         link = request.args.get('url')
         youtube_to_audio(link)
         
@@ -41,6 +45,15 @@ def load_video():
     except Exception as e:
         print(e)
 
+@app.get("/api/summarize_video")
+def summarize_video():
+    try:
+        youtube_url = request.args.get('url')
+        summary = summarize_youtube_video(youtube_url)
+        return summary
+    except Exception as e:
+        print(e)
+        raise 
 
 def summarize_text(transcript): 
     print('Cohere:')
