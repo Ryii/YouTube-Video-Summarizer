@@ -22,7 +22,7 @@ const App = () => {
   //   setArray(response.data.users);
   // };
 
-  const handleUrlVidSearch = (url: string) => {
+  const handleUrlVideoSearch = (url: string) => {
     // setVideoMeta(() => ({
     //   src: null,
     //   mimeType: null,
@@ -62,7 +62,7 @@ const App = () => {
       </div>
       <button
         onClick={() =>
-          handleUrlVidSearch('https://www.youtube.com/watch?v=QUT1VHiLmmI')
+          handleUrlVideoSearch('https://www.youtube.com/watch?v=tomUWcQ0P3k')
         }
       >
         Click to get link
