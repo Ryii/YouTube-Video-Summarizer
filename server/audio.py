@@ -50,8 +50,6 @@ def audio_to_text(project_id, gcs_uri):
     response = operation.result(timeout=180)
 
     transcript_builder = []
-    # Each result is for a consecutive portion of the audio. Iterate through
-    # them to get the transcripts for the entire audio file.
     for result in response.results[gcs_uri].transcript.results:
         transcript_builder.append(f"\nTranscript: {result.alternatives[0].transcript}")
 

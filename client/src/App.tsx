@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import axios, { AxiosResponse } from 'axios';
@@ -12,12 +13,12 @@ const App = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [transcript, setTranscript] = useState('');
   const [summary, setSummary] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleSummarizeVideo = () => {
     setIsLoading(true);
     axios
-      .get('/api/load_video', {
+      .get('/api/transcribe_summarize_video', {
         params: { url: videoUrl },
         baseURL: import.meta.env.VITE_API_ENDPOINT,
       })
@@ -51,15 +52,30 @@ const App = () => {
           Transcribe & Summarize
         </Button>
       </Box>
-      <VideoEmbed videoUrl={videoUrl} />
+      <Box sx={{ pb: 2 }}>
+        <VideoEmbed videoUrl={videoUrl} />
+      </Box>
       {isLoading ? (
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress />
+          <Typography sx={{ pt: 2 }}>Video analysis in progress! 🚀</Typography>
         </Box>
       ) : (
         <Box>
-          {summary && <Typography>Summary: {summary}</Typography>}
-          {transcript && <Typography>Transcript: {transcript}</Typography>}
+          {summary && (
+            <Box>
+              <Divider sx={{ pb: 2 }} />
+              <Typography variant='h6'>Summary</Typography>
+              <Typography>{summary}</Typography>
+            </Box>
+          )}
+          {transcript && (
+            <Box>
+              <Divider sx={{ pb: 2 }} />
+              <Typography variant='h6'>Transcript</Typography>
+              <Typography>{transcript}</Typography>
+            </Box>
+          )}
         </Box>
       )}
     </Box>
