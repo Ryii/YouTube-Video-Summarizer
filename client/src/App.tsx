@@ -1,74 +1,70 @@
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import './App.css';
 import SearchBar from './components/SearchBar';
 import VideoDetail from './components/VideoDetail';
-
-const extractVideoId = (url: string): string | null => {
-  const regex =
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.*[?&]v=)?([^&\n?#]+)/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
-};
+import { extractVideoId } from './extract_video_id';
 
 const App = () => {
   const [videoId, setVideoId] = useState<string | null>(null);
-  // const [array, setArray] = useState([]);
-  const [link, setLink] = useState('');
+  const [transcript, setTranscript] = useState('');
+  const [summary, setSummary] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // const fetchAPI = async () => {
-  //   const response = await axios.get("http://localhost:8080/api/users");
-  //   // console.log(response.data.users);
-  //   setArray(response.data.users);
-  // };
-
-  const handleUrlVideoSearch = (url: string) => {
-    // setVideoMeta(() => ({
-    //   src: null,
-    //   mimeType: null,
-    //   isUploading: true,
-    // }));
-
+  const handleVideoSearch = (url: string) => {
+    setIsLoading(true);
     axios
       .get('/api/load_video', {
-        params: {
-          url: url,
-        },
+        params: { url: url },
         baseURL: import.meta.env.VITE_API_ENDPOINT,
       })
       .then((response: AxiosResponse) => {
         console.log(response);
-        setLink(response.data);
+        setTranscript(response.data.transcript);
+        setSummary(response.data.summary);
       })
       .catch((e: Error) => {
         console.log(e);
       });
+    setIsLoading(false);
   };
 
-  // useEffect(() => {
-  //   fetchAPI();
-  // }, []);
-
-  const onSearch = (url: string) => {
+  const handleSearch = (url: string) => {
     const id = extractVideoId(url);
-    setVideoId(id);
+    console.log('hi there', id, url);
+    if (id) {
+      setVideoId(id);
+    }
   };
 
   return (
-    <div>
-      <div className='ui container'>
-        <SearchBar onSearch={onSearch} />
-        {videoId && <VideoDetail videoId={videoId} />}
-      </div>
-      <button
-        onClick={() =>
-          handleUrlVideoSearch('https://www.youtube.com/watch?v=tomUWcQ0P3k')
+    <Box>
+      <Typography variant='h4' sx={{ pb: 2 }}>
+        Video Summarizer
+      </Typography>
+      {isLoading ? (
+        <Box></Box>
+      ) : (
+        <Box className='ui container'>
+          <SearchBar onSearch={handleSearch} />
+          {videoId && <VideoDetail videoId={videoId} />}
+        </Box>
+      )}
+      <Button
+        onClick={
+          () => console.log('clicked')
+          // handleVideoSearch('https://www.youtube.com/watch?v=tomUWcQ0P3k')
         }
+        variant='outlined'
       >
         Click to get link
-      </button>
-      <p>{link}</p>
-    </div>
+      </Button>
+      <Typography>{transcript}</Typography>
+      <Typography>{summary}</Typography>
+    </Box>
   );
 };
 

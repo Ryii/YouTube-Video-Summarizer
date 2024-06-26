@@ -39,7 +39,7 @@ def summarize_video():
     try:
         youtube_url = request.args.get('url')
         transcript, summary = transcribe_summarize_video(youtube_url)
-        return transcript, summary
+        return {"transcript": transcript, "summary": summary}
     except Exception as e:
         print(e)
         raise 

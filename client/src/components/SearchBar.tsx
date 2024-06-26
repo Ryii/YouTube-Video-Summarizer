@@ -1,3 +1,5 @@
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import React, { useState } from 'react';
 
 interface SearchBarProps {
@@ -11,20 +13,17 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     setUrl(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSearch(url);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={url}
-        onChange={handleChange}
-        placeholder="Enter YouTube video URL..."
-      />
-      <button type="submit">Search</button>
+    <form onSubmit={handleSearch}>
+      <TextField label='YouTube URL' variant='filled' onChange={handleChange} />
+      <Button variant='outlined' type='submit'>
+        Search
+      </Button>
     </form>
   );
 };
