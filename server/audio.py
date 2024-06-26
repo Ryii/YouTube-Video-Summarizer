@@ -2,7 +2,6 @@ import os
 import shutil
 
 import cohere
-from google.cloud import storage
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from pytube import YouTube
@@ -28,13 +27,11 @@ def youtube_to_audio(url):
 
 def audio_to_text(project_id, gcs_uri):
     speech_client = SpeechClient()
-    
     config = cloud_speech.RecognitionConfig(
         auto_decoding_config=cloud_speech.AutoDetectDecodingConfig(),
         language_codes=["en-US"],
         model="long",
     )
-
     file_metadata = cloud_speech.BatchRecognizeFileMetadata(uri=gcs_uri)
 
     request = cloud_speech.BatchRecognizeRequest(
@@ -47,26 +44,19 @@ def audio_to_text(project_id, gcs_uri):
         processing_strategy=cloud_speech.BatchRecognizeRequest.ProcessingStrategy.DYNAMIC_BATCHING,
     )
 
-    # Transcribe audio into text
     operation = speech_client.batch_recognize(request=request)
 
     print("Waiting for operation to complete...")
     response = operation.result(timeout=180)
 
-    for result in response.results[gcs_uri].transcript.results:
-        print(f"Transcript: {result.alternatives[0].transcript}")
-
     transcript_builder = []
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
     for result in response.results[gcs_uri].transcript.results:
-        # The first alternative is the most likely one for this portion.
         transcript_builder.append(f"\nTranscript: {result.alternatives[0].transcript}")
-        # transcript_builder.append(f"\nConfidence: {result.alternatives[0].confidence}")
 
     transcript = "".join(transcript_builder)
     print("Transcript:", transcript)
-
     return transcript
 
 def summarize_text(transcript): 
@@ -80,17 +70,15 @@ def summarize_text(transcript):
         temperature=0.3,
     ) 
     print('Summary:', response.summary)
+
     return response.summary
 
-def summarize_video(youtube_url):
-    try: 
-        youtube_to_audio(youtube_url)
-        # TODO: check if url is already uploaded by reading bucket, only fetch if needed 
-        upload_blob("cohere_project_2024_bucket", "yt_audio.mp3", "yt_audio")
-        transcript = audio_to_text("cohere-project-2024", "gs://cohere_project_2024_bucket/yt_audio")
-        summary = summarize_text(transcript)
-        delete_blob("cohere_project_2024_bucket", "yt_audio")
-        return {"transcript": transcript, "summary": summary}
-    except Exception as e: 
-        print(e)
-        raise e
+def transcribe_summarize_video(youtube_url):
+    youtube_to_audio(youtube_url)
+    # TODO: check if url is already uploaded by reading bucket, only fetch if needed 
+    upload_blob("cohere_project_2024_bucket", "yt_audio.mp3", "yt_audio")
+    transcript = audio_to_text("cohere-project-2024", "gs://cohere_project_2024_bucket/yt_audio")
+    summary = summarize_text(transcript)
+    delete_blob("cohere_project_2024_bucket", "yt_audio")
+
+    return transcript, summary

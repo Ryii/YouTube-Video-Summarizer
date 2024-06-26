@@ -1,6 +1,6 @@
 import os
 
-from audio import summarize_youtube_video, youtube_to_audio
+from audio import transcribe_summarize_video, youtube_to_audio
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -32,13 +32,14 @@ def load_video():
         return youtube_url
     except Exception as e:
         print(e)
+        raise 
 
-@app.get("/api/summarize_video")
+@app.get("/api/transcribe_summarize_video")
 def summarize_video():
     try:
         youtube_url = request.args.get('url')
-        summary = summarize_youtube_video(youtube_url)
-        return summary
+        transcript, summary = transcribe_summarize_video(youtube_url)
+        return transcript, summary
     except Exception as e:
         print(e)
         raise 
