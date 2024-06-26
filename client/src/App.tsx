@@ -13,7 +13,7 @@ const App = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [transcript, setTranscript] = useState('');
   const [summary, setSummary] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSummarizeVideo = () => {
     setIsLoading(true);
