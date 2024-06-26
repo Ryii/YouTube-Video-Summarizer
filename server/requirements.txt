@@ -3,3 +3,5 @@ flask-cors
 python-dotenv
 cohere
 pytube
+google-cloud-speech
+google-cloud-storage

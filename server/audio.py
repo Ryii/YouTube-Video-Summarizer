@@ -6,7 +6,8 @@ import shutil
 # from google.cloud import speech_v2
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
-from pytube import YouTube
+from pytube import YouTube        
+
 
 FILE_PATH = "yt_audio.mp3"
 
@@ -25,8 +26,10 @@ def youtube_to_audio(url):
     return url
 
 def audio_to_text(project_id, gcs_uri):
+    print("1")
     client = SpeechClient()
     
+    print("2")
     config = cloud_speech.RecognitionConfig(
         auto_decoding_config=cloud_speech.AutoDetectDecodingConfig(),
         language_codes=["en-US"],
@@ -34,6 +37,7 @@ def audio_to_text(project_id, gcs_uri):
     )
 
     file_metadata = cloud_speech.BatchRecognizeFileMetadata(uri=gcs_uri)
+    print("3")
 
     request = cloud_speech.BatchRecognizeRequest(
         recognizer=f"projects/{project_id}/locations/global/recognizers/_",
@@ -44,32 +48,30 @@ def audio_to_text(project_id, gcs_uri):
         ),
         processing_strategy=cloud_speech.BatchRecognizeRequest.ProcessingStrategy.DYNAMIC_BATCHING,
     )
+    print("4")
 
     # Transcribe audio into text
     operation = client.batch_recognize(request=request)
 
     print("Waiting for operation to complete...")
-    response = operation.result(timeout=120)
+    response = operation.result(timeout=180)
 
     for result in response.results[gcs_uri].transcript.results:
         print(f"Transcript: {result.alternatives[0].transcript}")
 
-    return response.results[gcs_uri].transcript
+    transcript_builder = []
+    # Each result is for a consecutive portion of the audio. Iterate through
+    # them to get the transcripts for the entire audio file.
+    for result in response.results[gcs_uri].transcript.results:
+        # The first alternative is the most likely one for this portion.
+        transcript_builder.append(f"\nTranscript: {result.alternatives[0].transcript}")
+        # transcript_builder.append(f"\nConfidence: {result.alternatives[0].confidence}")
 
-    # transcript_builder = []
-    # # Each result is for a consecutive portion of the audio. Iterate through
-    # # them to get the transcripts for the entire audio file.
-    # for result in response.results:
-    #     # The first alternative is the most likely one for this portion.
-    #     transcript_builder.append(f"\nTranscript: {result.alternatives[0].transcript}")
-    #     transcript_builder.append(f"\nConfidence: {result.alternatives[0].confidence}")
+    transcript = "".join(transcript_builder)
+    print(transcript)
 
-    # transcript = "".join(transcript_builder)
-    # print(transcript)
+    return transcript
+
+
 
     # return transcript
-
-def summarize_text(transcript): 
-    # TODO: summarize with Cohere
-    print('transcript', transcript)
-    return ''
