@@ -1,24 +1,24 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import './App.css';
-import SearchBar from './components/SearchBar';
-import VideoDetail from './components/VideoDetail';
-import { extractVideoId } from './extract_video_id';
+import VideoEmbed from './components/VideoEmbed';
 
 const App = () => {
-  const [videoId, setVideoId] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
   const [transcript, setTranscript] = useState('');
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleVideoSearch = (url: string) => {
+  const handleSummarizeVideo = () => {
     setIsLoading(true);
     axios
       .get('/api/load_video', {
-        params: { url: url },
+        params: { url: videoUrl },
         baseURL: import.meta.env.VITE_API_ENDPOINT,
       })
       .then((response: AxiosResponse) => {
@@ -32,38 +32,36 @@ const App = () => {
     setIsLoading(false);
   };
 
-  const handleSearch = (url: string) => {
-    const id = extractVideoId(url);
-    console.log('hi there', id, url);
-    if (id) {
-      setVideoId(id);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVideoUrl(e.target.value);
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography variant='h4' sx={{ pb: 2 }}>
         Video Summarizer
       </Typography>
+      <Box sx={{ display: 'flex', gap: 2, pb: 2 }}>
+        <TextField
+          label='YouTube URL'
+          variant='filled'
+          onChange={handleChange}
+        />
+        <Button onClick={handleSummarizeVideo} variant='outlined'>
+          Transcribe & Summarize
+        </Button>
+      </Box>
+      <VideoEmbed videoUrl={videoUrl} />
       {isLoading ? (
-        <Box></Box>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress />
+        </Box>
       ) : (
-        <Box className='ui container'>
-          <SearchBar onSearch={handleSearch} />
-          {videoId && <VideoDetail videoId={videoId} />}
+        <Box>
+          {summary && <Typography>Summary: {summary}</Typography>}
+          {transcript && <Typography>Transcript: {transcript}</Typography>}
         </Box>
       )}
-      <Button
-        onClick={
-          () => console.log('clicked')
-          // handleVideoSearch('https://www.youtube.com/watch?v=tomUWcQ0P3k')
-        }
-        variant='outlined'
-      >
-        Click to get link
-      </Button>
-      <Typography>{transcript}</Typography>
-      <Typography>{summary}</Typography>
     </Box>
   );
 };
