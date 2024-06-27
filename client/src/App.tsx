@@ -17,6 +17,7 @@ const App = () => {
   const [showSideBySide, setShowSideBySide] = useState(false);
 
   const handleSummarizeVideo = () => {
+    setSummary('');
     setIsLoading(true);
     axios
       .get('/api/transcribe_summarize_video', {
@@ -40,96 +41,79 @@ const App = () => {
     setVideoUrl(e.target.value);
   };
 
-  // fix side by side
-  // move env variables
-  // vertical align summary, left align
-
   return (
-    <Box
-      sx={{
-        p: 4,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Box sx={{ width: '100%', maxWidth: 1200 }}>
-        <Typography
-          variant='h3'
-          sx={{ pb: 2, textAlign: 'center', fontFamily: 'BavroRegular' }}
+    <Box sx={{ width: '100%', maxWidth: 1200, p: 4 }}>
+      <Typography
+        variant='h3'
+        sx={{ pb: 2, textAlign: 'center', fontFamily: 'BavroRegular' }}
+      >
+        Video Summarizer
+      </Typography>
+      <Grid container spacing={4} justifyContent='center'>
+        <Grid
+          item
+          xs={12}
+          sm={showSideBySide ? 6 : 12}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          Video Summarizer
-        </Typography>
-        <Grid container spacing={4} justifyContent='center'>
+          <TextField
+            fullWidth
+            label='YouTube URL'
+            variant='filled'
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+          {isLoading ? (
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography sx={{ py: 2 }}>
+                Video analysis in progress! 🚀
+              </Typography>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Button
+              onClick={handleSummarizeVideo}
+              variant='outlined'
+              sx={{ width: '100%' }}
+            >
+              Transcribe & Summarize
+            </Button>
+          )}
+          <Box sx={{ pt: 2, width: '100%' }}>
+            <VideoEmbed videoUrl={videoUrl} />
+          </Box>
+        </Grid>
+        {showSideBySide && (
           <Grid
             item
             xs={12}
-            sm={showSideBySide ? 6 : 12}
+            sm={6}
             sx={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
           >
-            <Box sx={{ width: '100%', textAlign: 'center' }}>
-              <TextField
-                fullWidth
-                label='YouTube URL'
-                variant='filled'
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              {isLoading ? (
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography sx={{ py: 2, color: 'white' }}>
-                    Video analysis in progress! 🚀
-                  </Typography>
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <Button
-                  onClick={handleSummarizeVideo}
-                  variant='outlined'
-                  sx={{ width: '100%' }}
-                >
-                  Transcribe & Summarize
-                </Button>
-              )}
-              <Box sx={{ pt: 2 }}>
-                <VideoEmbed videoUrl={videoUrl} />
-              </Box>
-            </Box>
-          </Grid>
-          {showSideBySide && (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
+            {summary && (
               <Box sx={{ width: '100%' }}>
-                {summary && (
-                  <Box>
-                    <Typography variant='h6'>Summary</Typography>
-                    <Typography>{summary}</Typography>
-                  </Box>
-                )}
-                {/* {transcript && (
-                  <Box sx={{ pt: 2 }}>
-                    <Divider />
-                    <Typography variant='h6'>Transcript</Typography>
-                    <Typography>{transcript}</Typography>
-                  </Box>
-                )} */}
+                <Typography variant='h6'>Summary</Typography>
+                <Typography>{summary}</Typography>
               </Box>
-            </Grid>
-          )}
-        </Grid>
-      </Box>
+            )}
+            {/* {transcript && (
+                <Box sx={{ pt: 2 }}>
+                  <Divider />
+                  <Typography variant='h6'>Transcript</Typography>
+                  <Typography>{transcript}</Typography>
+                </Box>
+              )} */}
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 };
