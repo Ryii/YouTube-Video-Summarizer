@@ -7,7 +7,9 @@ from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from pytube import YouTube
 
-FILE_PATH = "yt_audio.mp3"
+from server.config import COHERE_API_KEY, GC_BUCKET_NAME, GC_PROJECT_NAME
+
+TEMP_FILE_PATH = "yt_audio.mp3"
 
 def youtube_to_audio(url):
     # Download file 
@@ -19,17 +21,17 @@ def youtube_to_audio(url):
     # Save to local
     file = os.listdir(temp_output_path)[0]
     shutil.move(os.path.join(temp_output_path, file), ".")
-    os.rename((file), FILE_PATH)
+    os.rename((file), TEMP_FILE_PATH)
     shutil.rmtree(temp_output_path)
 
     return 0
 
 def remove_audio_file():
-    if os.path.exists(FILE_PATH):
-        os.remove(FILE_PATH)
-        print(f"File '{FILE_PATH}' removed successfully.")
+    if os.path.exists(TEMP_FILE_PATH):
+        os.remove(TEMP_FILE_PATH)
+        print(f"File '{TEMP_FILE_PATH}' removed successfully.")
     else:
-        print(f"File '{FILE_PATH}' does not exist.")
+        print(f"File '{TEMP_FILE_PATH}' does not exist.")
 
 def audio_to_text(project_id, gcs_uri):
     speech_client = SpeechClient()
@@ -51,7 +53,6 @@ def audio_to_text(project_id, gcs_uri):
     )
 
     operation = speech_client.batch_recognize(request=request)
-
     response = operation.result(timeout=180)
 
     transcript_builder = []
@@ -62,7 +63,7 @@ def audio_to_text(project_id, gcs_uri):
     return transcript
 
 def summarize_text(transcript): 
-    cohere_client = cohere.Client(os.environ.get("COHERE_API_KEY"))
+    cohere_client = cohere.Client(COHERE_API_KEY)
     response = cohere_client.summarize( 
         text=transcript,
         length='medium',
@@ -77,10 +78,10 @@ def summarize_text(transcript):
 def transcribe_summarize_video(youtube_url):
     youtube_to_audio(youtube_url)
     # TODO: check if url is already uploaded by reading bucket, only fetch if needed 
-    upload_blob("cohere_project_2024_bucket", "yt_audio.mp3", "yt_audio")
-    transcript = audio_to_text("cohere-project-2024", "gs://cohere_project_2024_bucket/yt_audio")
+    upload_blob(GC_BUCKET_NAME, "yt_audio.mp3", "yt_audio")
+    transcript = audio_to_text(GC_PROJECT_NAME, f"gs://{GC_BUCKET_NAME}/yt_audio")
     summary = summarize_text(transcript)
-    delete_blob("cohere_project_2024_bucket", "yt_audio")
+    delete_blob(GC_BUCKET_NAME, "yt_audio")
     remove_audio_file()
 
     return transcript, summary

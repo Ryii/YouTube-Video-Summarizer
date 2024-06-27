@@ -2,15 +2,17 @@ import os
 
 from audio import transcribe_summarize_video, youtube_to_audio
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from flask_cors import CORS
+
+from server.config import GC_BUCKET_NAME
 
 load_dotenv()
 
 app = Flask(__name__)
 cors = CORS(app, origins="*")
 
-os.environ["GCLOUD_PROJECT"] = "cohere_project_2024_bucket"
+os.environ["GCLOUD_PROJECT"] = GC_BUCKET_NAME
 
 @app.get("/api/load_video")
 def load_video():

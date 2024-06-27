@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import React from 'react';
-import { extractVideoId } from './extract_video_id';
+import { extractVideoId } from './utils';
 
 interface VideoEmbedProps {
   videoUrl: string;
