@@ -12,7 +12,7 @@ import VideoEmbed from './components/VideoEmbed';
 
 const App = () => {
   const [videoUrl, setVideoUrl] = useState('');
-  const [transcript, setTranscript] = useState('');
+  // const [transcript, setTranscript] = useState('');
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
@@ -28,7 +28,7 @@ const App = () => {
       })
       .then((response: AxiosResponse) => {
         console.log(response);
-        setTranscript(response.data.transcript);
+        // setTranscript(response.data.transcript);
         setSummary(response.data.summary);
         setShowSideBySide(true); // Activate side-by-side layout
       })
