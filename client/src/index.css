@@ -13,6 +13,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@font-face {
+  font-family: "BavroRegular";
+  src: local("BavroRegular"),
+    url("./fonts/Bavro-Regular.otf") format("opentype");
+  font-weight: normal;
+}
+
 /* a {
   font-weight: 500;
   color: #646cff;

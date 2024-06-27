@@ -6,7 +6,7 @@ from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from pytube import YouTube
 
-from server.cloud_storage import delete_blob, upload_blob
+from cloud_storage import delete_blob, upload_blob
 
 FILE_PATH = "yt_audio.mp3"
 
@@ -24,6 +24,13 @@ def youtube_to_audio(url):
     shutil.rmtree(temp_output_path)
 
     return 0
+
+def remove_audio_file():
+    if os.path.exists(FILE_PATH):
+        os.remove(FILE_PATH)
+        print(f"File '{FILE_PATH}' removed successfully.")
+    else:
+        print(f"File '{FILE_PATH}' does not exist.")
 
 def audio_to_text(project_id, gcs_uri):
     speech_client = SpeechClient()
@@ -78,5 +85,6 @@ def transcribe_summarize_video(youtube_url):
     transcript = audio_to_text("cohere-project-2024", "gs://cohere_project_2024_bucket/yt_audio")
     summary = summarize_text(transcript)
     delete_blob("cohere_project_2024_bucket", "yt_audio")
+    remove_audio_file()
 
     return transcript, summary
