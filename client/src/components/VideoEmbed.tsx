@@ -11,13 +11,12 @@ const VideoEmbed: React.FC<VideoEmbedProps> = ({ videoUrl }) => {
   const videoSrc = `https://www.youtube.com/embed/${videoId}`;
 
   return (
-    <Box sx={{ height: 315, width: '100%' }}>
+    <Box sx={{ height: 315, maxWidth: 560, margin: 'auto' }}>
       {videoId && (
         <iframe
-          title='video player'
           src={videoSrc}
-          width='560'
-          height='315'
+          width='100%'
+          height='100%'
           frameBorder='0'
           allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
           allowFullScreen
