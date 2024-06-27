@@ -12,18 +12,6 @@ cors = CORS(app, origins="*")
 
 os.environ["GCLOUD_PROJECT"] = "cohere_project_2024_bucket"
 
-@app.route("/api/users", methods=['GET'])
-def users():
-    return jsonify(
-        {
-            "users": [
-                'arpan',
-                'zach',
-                'jessie'
-            ]
-        }
-    )
-
 @app.get("/api/load_video")
 def load_video():
     try:

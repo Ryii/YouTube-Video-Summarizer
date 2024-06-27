@@ -2,11 +2,10 @@ import os
 import shutil
 
 import cohere
+from cloud_storage import delete_blob, upload_blob
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from pytube import YouTube
-
-from cloud_storage import delete_blob, upload_blob
 
 FILE_PATH = "yt_audio.mp3"
 
@@ -53,20 +52,18 @@ def audio_to_text(project_id, gcs_uri):
 
     operation = speech_client.batch_recognize(request=request)
 
-    print("Waiting for operation to complete...")
     response = operation.result(timeout=180)
 
     transcript_builder = []
     for result in response.results[gcs_uri].transcript.results:
         transcript_builder.append(f"\nTranscript: {result.alternatives[0].transcript}")
-
     transcript = "".join(transcript_builder)
-    print("Transcript:", transcript)
+
     return transcript
 
 def summarize_text(transcript): 
-    co = cohere.Client(os.environ.get("COHERE_API_KEY"))
-    response = co.summarize( 
+    cohere_client = cohere.Client(os.environ.get("COHERE_API_KEY"))
+    response = cohere_client.summarize( 
         text=transcript,
         length='medium',
         format='paragraph',
@@ -74,8 +71,7 @@ def summarize_text(transcript):
         additional_command='',
         temperature=0.3,
     ) 
-    print('Summary:', response.summary)
-
+    
     return response.summary
 
 def transcribe_summarize_video(youtube_url):
