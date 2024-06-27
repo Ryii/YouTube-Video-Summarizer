@@ -46,7 +46,7 @@ const App = () => {
   };
 
   return (
-    <Box sx={{ p: 4, minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Box sx={{ width: '100%', maxWidth: 1200 }}>
         <Typography variant='h3' sx={{ pb: 2, textAlign: 'center', fontFamily: 'BavroRegular' }}>
           Video Summarizer
@@ -64,7 +64,7 @@ const App = () => {
               />
               <Button onClick={handleSummarizeVideo} variant='outlined' disabled={buttonDisabled} sx={{ width: '100%' }}>
                 {isLoading ? (<Box sx={{ textAlign: 'center'}}>
-                    <Typography sx={{ pt: 2, color: 'white' }}>Video analysis in progress! 🚀</Typography>
+                    <Typography sx={{ py: 2, color: 'white' }}>Video analysis in progress! 🚀</Typography>
                     <CircularProgress />
                   </Box>) : 'Transcribe & Summarize'}
               </Button>
