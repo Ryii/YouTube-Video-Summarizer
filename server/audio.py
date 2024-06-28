@@ -7,7 +7,7 @@ from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from pytube import YouTube
 
-from server.config import COHERE_API_KEY, GC_BUCKET_NAME, GC_PROJECT_NAME
+from config import COHERE_API_KEY, GC_BUCKET_NAME, GC_PROJECT_NAME
 
 TEMP_FILE_PATH = "yt_audio.mp3"
 
@@ -23,8 +23,6 @@ def youtube_to_audio(url):
     shutil.move(os.path.join(temp_output_path, file), ".")
     os.rename((file), TEMP_FILE_PATH)
     shutil.rmtree(temp_output_path)
-
-    return 0
 
 def remove_audio_file():
     if os.path.exists(TEMP_FILE_PATH):
@@ -53,6 +51,7 @@ def audio_to_text(project_id, gcs_uri):
     )
 
     operation = speech_client.batch_recognize(request=request)
+    print("Waiting for transcription to finish...")
     response = operation.result(timeout=180)
 
     transcript_builder = []
