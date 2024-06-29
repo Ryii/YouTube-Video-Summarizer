@@ -2,6 +2,8 @@
 
 This project is a video summarizer application developed using Python, React, and TypeScript. It leverages Cohere's speech-to-text API to transcribe videos and summarize their content. The application is hosted on Google Cloud Platform (GCP) and provides users with the ability to input YouTube video URLs, analyze the content, and display a summarized version of the video's transcript.
 
+![Demo Picture](client/public/demo.png "Demo")
+
 ## Features
 
 - Transcribes YouTube videos to text using Google's Speech-to-Text API.

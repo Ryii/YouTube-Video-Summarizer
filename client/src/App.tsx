@@ -108,7 +108,9 @@ const App = () => {
                   alignItems: "center",
                 }}
               >
-                <Typography variant="h5">Summary</Typography>
+                <Typography sx={{ pt: 5 }} variant="h5">
+                  Summary
+                </Typography>
                 <Typography sx={{ textAlign: "center", pt: 2 }}>
                   {summary}
                 </Typography>
